@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Space Grotesk", ui-sans-serif, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* These point at the runtime CSS variables below, so bg-surface,
+     text-primary, border-border etc. all auto-flip with .dark */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-primary: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-todo: var(--status-todo);
+  --color-progress: var(--status-progress);
+  --color-done: var(--status-done);
+}
+
+:root {
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --text-primary: #14181F;
+  --text-secondary: #5B6472;
+  --border: #E2E5EA;
+  --accent: #0FA8A0;
+  --status-todo: #8B93A1;
+  --status-progress: #F5A524;
+  --status-done: #2BB673;
+  --status-incomplete: #f60d0d;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0F1218;
+  --surface: #171B23;
+  --text-primary: #E7EAEF;
+  --text-secondary: #8B93A1;
+  --border: #262B35;
+  --accent: #2DD4CB;
+  --status-todo: #6B7280;
+  --status-progress: #F5A524;
+  --status-done: #34D399;
+  --status-incomplete: #f60d0d;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+}
