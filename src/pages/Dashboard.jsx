@@ -2,8 +2,8 @@
 import { Plus, LayoutGrid, Columns3 } from "lucide-react";
 import { useProjects } from "../hooks/useProjects";
 import { useTasks } from "../hooks/useTasks";
-import { updateTask, deleteTask as apiDeleteTask } from "../api/tasks";
-import { deleteProject as apiDeleteProject } from "../api/projects";
+import { updateTask, deleteTask as apiDeleteTask, createTask as apiCreateTask } from "../api/tasks";
+import { deleteProject as apiDeleteProject, createProject as apiCreateProject } from "../api/projects";
 import { StatsCards } from "../components/dashboard/StatsCards";
 import { ProjectCard } from "../components/dashboard/ProjectCard";
 import { TaskCard } from "../components/dashboard/TaskCard";
@@ -49,13 +49,30 @@ export function Dashboard({ searchValue, activeView = "dashboard" }) {
     return projects.filter((p) => p.name.toLowerCase().includes(searchValue.toLowerCase()));
   }, [projects, searchValue]);
 
-  const addProject = (p) => {
-    setProjects((prev) => [{ ...p, id: `p-${Date.now()}` }, ...prev]);
-    showToast(`Project "${p.name}" created`);
+  const addProject = async (p) => {
+    try {
+      const created = await apiCreateProject({ name: p.name, description: p.description, status: p.status });
+      setProjects((prev) => [created, ...prev]);
+      showToast(`Project "${created.name}" created`);
+    } catch (err) {
+      showToast(`Failed to create project: ${err.message}`);
+    }
   };
-  const addTask = (t) => {
-    setTasks((prev) => [{ ...t, id: `t-${Date.now()}`, assigned_to: null }, ...prev]);
-    showToast(`Task "${t.title}" created`);
+
+  const addTask = async (t) => {
+    try {
+      const created = await apiCreateTask(t.project_id, {
+        title: t.title,
+        description: t.description,
+        status: t.status,
+        priority: t.priority,
+        due_date: t.due_date,
+      });
+      setTasks((prev) => [created, ...prev]);
+      showToast(`Task "${created.title}" created`);
+    } catch (err) {
+      showToast(`Failed to create task: ${err.message}`);
+    }
   };
 
   const toggleComplete = async (task) => {
@@ -66,7 +83,7 @@ export function Dashboard({ searchValue, activeView = "dashboard" }) {
     try {
       await updateTask(task.id, { status: newStatus });
     } catch {
-      // mock/local-only task
+      // ignore
     }
   };
 
@@ -75,7 +92,7 @@ export function Dashboard({ searchValue, activeView = "dashboard" }) {
     try {
       await updateTask(taskId, { status: newStatus });
     } catch {
-      // ignore for mock/local tasks
+      // ignore
     }
   };
 
