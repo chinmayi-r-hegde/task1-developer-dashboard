@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
-import { mockTasks, mockDelay } from "../data/mockData";
+﻿import { useEffect, useState } from "react";
 import { getTasks } from "../api/tasks";
-
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === "true";
+import { apiRequest } from "../api/client";
 
 export function useTasks(projectId = null) {
   const [tasks, setTasks] = useState([]);
@@ -17,13 +15,14 @@ export function useTasks(projectId = null) {
       setError(null);
       try {
         let data;
-        if (USE_MOCK) {
-          await mockDelay();
-          data = projectId
-            ? mockTasks.filter((t) => t.project_id === projectId)
-            : mockTasks;
-        } else {
+        if (projectId) {
           data = await getTasks(projectId);
+        } else {
+          const projects = await apiRequest("/projects");
+          const allTasks = await Promise.all(
+            projects.map((p) => getTasks(p.id).catch(() => []))
+          );
+          data = allTasks.flat();
         }
         if (!cancelled) setTasks(data);
       } catch (err) {
